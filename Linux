@@ -1,0 +1,201 @@
+#############################################################
+####################### Linux Commands ######################
+#############################################################
+//generates key in same directory
+ssh-keygen -C "your_email@example.com" -f ssh_key
+
+//check last few lines of log when cloud server initiates
+tail -f /var/log/cloud-init-output.log
+
+//Save Vim file
+:wq
+
+//copy a file to a directory
+cp index.html /website
+
+//check CPU
+top
+
+//increase CPU to max
+yes > /dev/null &
+
+//show all active services
+systemctl --type=service --state=active
+
+//renew certificate for websites
+certbot --force-renewal
+
+// find ubuntu version
+lsb_release -a
+
+// start service
+systemctl start apache2
+
+//enable service on restart
+systemctl enable apache2
+
+///etc/letsencrypt/options-ssl-apache.conf
+// certifate for Digitology ltd
+certbot certonly --webroot -w /var/www/example -d www.example.com -d example.com -w /var/www/other -d other.example.net -d another.other.example.net
+certbot certonly --webroot -w /var/www/digitology.co.uk -d www.digitology.co.uk -d digitology.co.uk
+
+//delete certificate
+certbot delete --cert-name <name of certificate>
+certbot delete --cert-name digitology.co.uk
+
+// intall ssl on apache for all domains
+certbot --apache
+
+// Disk usage
+du -h
+
+// disk usage based on directory
+du -sk /*|sort -n
+
+//find a directory by name
+sudo find / -type d -name "magento*"
+
+
+#############################################################
+####################### Docker Commands ######################
+#############################################################
+
+//list all docker containers
+docker ps
+
+//list all docker containers with details including deleted
+docker ps -a
+
+//stop docker container
+docker stop dockerid or dockername
+
+// Remove docker
+docker rm dockerid or dockername
+
+
+//Docker mapping port to webserver container Nginx -d=run in detached mode -p= assigning port
+docker run -d -p 8080:80 nginx:latest
+docker run -d -p 80:80 nginx:latest
+
+//Naming a docker container to gijja and forward port
+docker run --name gijja -d -p  80:80 nginx:latest
+
+//format docker names and other parameters
+docker ps --format="ID\t{{.ID}}\nNAME\t{{.Names}}\nIMAGE\t{{.Image}}\nPORTS\t{{.Ports}}\nCOMMAND\t{{.Command}}\CREATED\t{{.CreatedAt}}nSTATUS\t{{.Status}}\n"
+
+//adding one more port to the docker container
+//first stop the container
+docker run --name gijja -d -p 80:80 -p 30:80 nginx:latest
+
+// Remove all the docker containers 
+//first all stop all containers
+docker rm $(docker ps -aq)
+
+// Remove all containers without stopping -f = force
+docker rm -f $(docker ps-aq)
+
+// Running a website from pwd in read only mode and changing the default nginx page
+docker run --name website -v $(pwd):/usr/share/nginx/html:ro -d -p 80:80 nginx
+
+//Running same webiste from a new port and container using same content 
+docker run --name website-copy --volumes-from website -d -p 8081:80 nginx
+
+// tag a docker file
+docker build --tag dockername:tagname
+
+
+//build a docker file . has all files in current directory
+docker build --tag dockername:tagname .
+
+
+#############################################################
+####################### Kubernetes Commands ######################
+#############################################################
+
+// Check version staus and nodes with cluster info
+kubectl version --short && \
+kubectl get componentstatus && \
+kubectl get nodes && \
+kubectl cluster-info
+
+// check helm version
+helm version --short
+
+// shell into the POD
+kubectl exec -it <POD_NAME> -- /bin/bash
+
+
+// Add the chart repository for the Helm chart to be installed
+helm repo add twuni https://helm.twun.io
+// Install the chart for a private container registry
+helm install registry twuni/docker-registry \
+  --version 1.10.0 \
+  --namespace kube-system \
+  --set service.type=NodePort \
+  --set service.nodePort=31500
+//The registry is now available as a service. It can be listed
+kubectl get service --namespace kube-system
+//Assign an environment variable to the common registry location:
+export REGISTRY=2886795302-31500-host11nc.environments.katacoda.com
+//It will be a few moments before the registry deployment reports it's Available
+kubectl get deployments registry-docker-registry --namespace kube-system
+//Once the registry is serving, inspect the contents of the empty registry:
+curl $REGISTRY/v2/_catalog | jq -c
+
+//Get the name of the running Pod.
+export POD=$(kubectl get pod -l app=nginx -o jsonpath="{.items[0].metadata.name}") && echo $POD
+
+// Scale to three Pods
+kubectl scale deployment/<container-name> --replicas=3
+
+// port forwarding for POD
+kubectl port-forward $POD 8000:80  > /dev/null &
+
+//Copy the index.html file out of the container to this local file system where you are running the shell
+kubectl cp $POD:usr/share/nginx/html/index.html index.html
+
+Copy the modified welcome page back to the container:
+kubectl cp index.html $POD:usr/share/nginx/html/index.html
+
+------------Logs-----------
+// check log of object name
+kubectl get event --field-selector=involvedObject.name=random-logger
+
+// list all log directories
+ls -ld /var/log/*/
+
+// Inspect the current logs from the container inside the Pod, as part of the deployment
+kubectl logs deployment/<containe-name>
+
+//View the logs from that specific Pod by its name:
+POD_0=$(kubectl get pods -o=jsonpath="{.items[0]['metadata.name']}") && echo "Pod name is: $POD_0"
+kubectl logs $POD_0
+
+//It's 150 lines, as you see the 50 lines from each of the 3 Pods. If you had hundreds of Pods and requested lots of lines, it's a good way to rattle the comfort of a site reliability engineer. You //might even get the lights to flicker.
+kubectl logs --selector app=random-logger --tail=50 && kubectl logs --selector app=random-logger --tail=50 | echo "Log lines $(wc -l)"
+
+//Sometimes you may want to observe an application by watching the accumulating log lines. Use the follow=true | -f switch to stream the events to stdout:
+kubectl logs --selector app=random-logger --tail=1 --follow=true
+
+// Get job logs: With a little help from grep and cut the name of the job is extracted and passed to the logs command:
+export JOB_ID=$(kubectl describe jobs oneshot | grep -o 'Created pod: .*' | cut -f3- -d' ')
+echo $JOB_ID
+kubectl logs $JOB_ID
+
+----------------------------------------
+//  change node port (to 31111)
+kubectl patch service sidecar-pod --type='json' --patch='[{"op": "replace", "path": "/spec/ports/0/nodePort", "value":31111}]'
+
+********************************************************************************************************************
+Bash Commands
+
+To create a bash script, you place #!/bin/bash at the top of the file.
+
+Quick note: Anything encased in [ ] means that it's optional. ...
+ls — List directory contents.
+echo — Prints text to the terminal window.
+touch — Creates a file.
+mkdir — Create a directory.
+grep — search.
+man — Print manual or get help for a command.
+pwd — Print working directory.
