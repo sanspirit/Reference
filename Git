@@ -1,0 +1,63 @@
+ ######Creating a branch#####
+--first create a folder where you want to clone the Repo.
+-- cd into the folder
+
+--clone the repo
+Git clone (path- use shh for bash and https for powershell and cmd)
+1.
+-- cd into the cloned folder that is your master branch
+2.
+-- do a git pull to get latest code
+git pull
+3.
+-- create a branch and also checkout at the same time
+git checkout -b <branchname>
+
+---Create a feature branch from an existing branch
+-- ensure you are on the branch from which you want to create the feature branchgi
+git checkout -b feature/<feature-branch-name> <existing-branch-name>
+
+
+
+--Once you do your changes then add the changes in current folder or mention the file names
+git add .
+
+-- to commit from staging area to
+git commit -m 'your comment here'
+
+---to add to staging area and commit at the same time use
+git commit -am 'your comment here'
+
+-- push the branch to repo
+git push origin branchname
+
+
+#### Merge Branch to Master / Main ####
+Assuming that you are in branch testBranch and you want to merge the changes with the master,
+
+--First checkout to master branch,
+git checkout master
+
+--Now pull the latest changes in master,
+git pull origin master
+
+--Merge with the testBranch
+git merge testBranch
+
+--Push the changes to master
+git push origin master
+
+That's it, you are done.
+
+--delete a branch
+checkout to master then
+git branch --delete <branchname>
+
+--check branches
+git branch -a
+
+---create a branch of existing branch
+git checkout -b myFeature dev
+Creates the MyFeature branch off dev. Do your work and then
+
+git commit -am "Your message"                 6
