@@ -52,6 +52,8 @@ That's it, you are done.
 --delete a branch
 checkout to master then
 git branch --delete <branchname>
+-- Force Delete branch
+git branch -D <branchname>
 
 --check branches
 git branch -a
