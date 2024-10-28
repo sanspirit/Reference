@@ -66,3 +66,7 @@ git commit -am "Your message"
 
 --difference between two branches ( two dots between the branches)
 git diff branch1..branch2
+
+---merge from main in to your current working branch. You are in your current branch
+git fetch
+git merge origin/main
