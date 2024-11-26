@@ -68,8 +68,9 @@ git commit -am "Your message"
 git diff branch1..branch2
 
 ---merge from main in to your current working branch. You are in your current branch
-git fetch
-git merge origin/main
+git fetch origin
+git merge -X theirs origin/<branch-name>
+git merge -X theirs origin/main
 
 -- cancel the merge        
 $ git reset --merge
